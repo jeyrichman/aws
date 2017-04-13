@@ -14,7 +14,7 @@ do
                 if [[ -z "${EC2ID// }" ]]; then
                         echo -e $White"Looking Instances in region: "$region...$EC2ID
                 else
-                        echo -e $Green ++++++ Found EC2 in region: $region:$Yellow$EC2ID
+                        echo -e $Green ++++++ Found EC2 in region: $region, ID:$Yellow$EC2ID
                         GROUPID=`aws ec2 describe-instances  --region $region --instance-ids $EC2ID --query 'Reservations[*].Instances[*].SecurityGroups[*].GroupId'  --output text`
                         echo -e $White =================================
                         echo -e $Purple REGION '=>' $region;
@@ -32,5 +32,11 @@ done
 for ip in ${RULES[@]};do
         IP=`echo $ip | cut -d\/ -f1`
         ORG=`whois $IP | grep 'OrgName'`
-        echo -e $Green $IP $Purple '=>' $White $ORG
+        PRINT=`echo -e $Green $IP $Purple '=>' $White $ORG`
+        echo $PRINT && echo  $PRINT >> info.csv
 done
+
+echo ""
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Information about all IP Subnets been written to info.csv"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
