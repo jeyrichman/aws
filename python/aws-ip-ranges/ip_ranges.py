@@ -4,6 +4,8 @@ from pprint import pprint
 import boto3
 from ipwhois import IPWhois
 
+import csv
+
 access_key = os.environ['ACCESS_KEY']
 secret_key = os.environ['SECRET_KEY']
 
@@ -16,6 +18,7 @@ def get_range(rule):
 
 
 def whois_enrich_and_pretty_print(ip_range):
+    out = open('out.csv', 'a')
 
     def whois_info(sidr):
         try:
@@ -30,8 +33,9 @@ def whois_enrich_and_pretty_print(ip_range):
         if splitted_sidr[1] != '0':
             subnets_ranges.append({'ip_range': sidr, 'whois_info': whois_info(splitted_sidr[0])})
         pprint({'Ports range': ip_range[1],
-                'Ip ranges': subnets_ranges
-                })
+                'Ip ranges': subnets_ranges,
+                }, stream=out)
+    out.close()
 
 
 def get_ranges():
@@ -50,5 +54,11 @@ def get_ranges():
     for r in ip_ranges:
         whois_enrich_and_pretty_print(r)
 
+def clearCSV():
+    with open('out.csv', "w"):
+        pass
+
 if __name__ == "__main__":
+    clearCSV()
     get_ranges()
+    pprint ('All information about subnets saved to out.csv file. Please check')
