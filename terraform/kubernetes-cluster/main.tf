@@ -23,7 +23,7 @@ resource "aws_subnet" "default" {
 }
 
 resource "aws_security_group" "kubernetes-cluster" {
-  name        = "terraform_example_elb"
+  name        = "kubernetes-cluster"
   description = "Used in the terraform"
   vpc_id      = "${aws_vpc.default.id}"
 
@@ -33,36 +33,6 @@ resource "aws_security_group" "kubernetes-cluster" {
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # outbound internet access
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-resource "aws_security_group" "default" {
-  name        = "terraform_example"
-  description = "Used in the terraform"
-  vpc_id      = "${aws_vpc.default.id}"
-
-  # SSH access from anywhere
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # HTTP access from the VPC
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]
   }
 
   # outbound internet access
@@ -87,7 +57,7 @@ resource "aws_instance" "k8s_master" {
   instance_type = "t2.micro"
   ami = "${lookup(var.aws_amis, var.aws_region)}"
   key_name = "${aws_key_pair.auth.id}"
-  vpc_security_group_ids = ["${aws_security_group.default.id}"]
+  vpc_security_group_ids = ["${aws_security_group.kubernetes-cluster.id}"]
   subnet_id = "${aws_subnet.default.id}"
   provisioner "remote-exec" {
     inline = [
